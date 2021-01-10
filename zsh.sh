@@ -42,8 +42,7 @@ preprocessvideo() {
     else
         OUTFILE="${1}tmp.mp4"
     fi
-    ffmpeg -i "$1" -max_muxing_queue_size 400 -filter_complex \
-        "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "$OUTFILE" || return 1
+    ffmpeg -i "$1" -max_muxing_queue_size 400 "$OUTFILE" || return 1
 }
 
 autoeditvid() {
@@ -53,12 +52,16 @@ autoeditvid() {
     if [ "$1" = "mp4" ]
     then
         mkdir tmprenders
+        echo "converting video to correct codec"
         for i in ./*.mp4
         do
             preprocessvideo "$i" "tmprender.mp4" || return 1
             mv tmprender.mp4 tmprenders/"$i"tmp.mp4
         done
-        melt *.mp4 -consumer avformat:"${2}tmp.mp4" acodec=libmp3lame vcodec=libx264 vb=8000k
+        echo 'concatenating videos'
+        melt *.mp4 -consumer avformat:"${2}tmp2.mp4" acodec=libmp3lame vcodec=libx264 vb=8000k
+        echo "applying audio compression"
+        ffmpeg -i "${2}tmp2.mp4" -filter_complex "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
     else
         preprocessvideo "$1" "${2}tmp.mp4"
     fi
