@@ -42,7 +42,7 @@ preprocessvideo() {
     else
         OUTFILE="${1}tmp.mp4"
     fi
-    ffmpeg -i "$1" -movflags +faststart -analyzeduration 2147483647 -probesize 2147483647 -max_muxing_queue_size 9999 "$OUTFILE" || return 1
+    ffmpeg -i "$1" -vcodec libx264 -movflags +faststart -analyzeduration 2147483647 -probesize 2147483647 -max_muxing_queue_size 9999 "$OUTFILE" || return 1
 }
 
 autoeditvid() {
@@ -59,7 +59,16 @@ autoeditvid() {
             mv tmprender.mp4 tmprenders/"$i"tmp.mp4
         done
         echo 'concatenating videos'
-        melt *.mp4 -consumer avformat:"${2}tmp2.mp4" acodec=libmp3lame vcodec=libx264 vb=8000k
+
+        MKVCOMMAND="mkvmerge -o \"${2}tmp2.mp4\""
+        for i in ./*.mp4
+        do
+            MKVCOMMAND="$MKVCOMMAND \"$i\" \+"
+        done
+        MKVCOMMAND="$(sed 's/..$//g' <<< "$MKVCOMMAND")"
+        echo "running $MKVCOMMAND"
+        $MKVCOMMAND || return 1
+
         echo "applying audio compression"
         ffmpeg -i "${2}tmp2.mp4" -filter_complex "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
     else
