@@ -42,7 +42,7 @@ preprocessvideo() {
     else
         OUTFILE="${1}tmp.mp4"
     fi
-    ffmpeg -i "$1" -max_muxing_queue_size 400 "$OUTFILE" || return 1
+    ffmpeg -i "$1" -movflags +faststart -analyzeduration 2147483647 -probesize 2147483647 -max_muxing_queue_size 9999 "$OUTFILE" || return 1
 }
 
 autoeditvid() {
