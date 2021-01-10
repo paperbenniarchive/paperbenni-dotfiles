@@ -67,7 +67,7 @@ autoeditvid() {
         done
         MKVCOMMAND="$(sed 's/..$//g' <<< "$MKVCOMMAND")"
         echo "running $MKVCOMMAND"
-        $MKVCOMMAND || return 1
+        eval "$MKVCOMMAND"
 
         echo "applying audio compression"
         ffmpeg -i "${2}tmp2.mp4" -filter_complex "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
