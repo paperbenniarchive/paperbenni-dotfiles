@@ -47,6 +47,19 @@ preprocessvideo() {
 
 autoeditvid() {
 
+    if command -v pacman &> /dev/null
+    then
+        instantinstall mkvtoolnix-cli || exit 1
+        instantinstall ffmpeg || exit 1
+    fi
+
+    if ! command -v auto-editor &> /dev/null
+    then
+        echo "installing auto-editor"
+        command -v pip || exit 1
+        sudo pip3 install auto-editor
+    fi
+
     [ -z "$2" ] && return 1
 
     if [ "$1" = "mp4" ]
