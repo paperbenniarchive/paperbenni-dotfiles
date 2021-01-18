@@ -1,12 +1,9 @@
 #!/bin/bash
 
-if ! [ -e ~/.zshrc ]
-then
-    touch ~/.zshrc
-fi
+echo 'installing paperbennis personal dotfiles'
+cd dotfiles || exit 1
+instantinstall rsync
+command -v rsync &> /dev/null || exit 1
+rsync -a -r ./ ~/
+echo "finished installing paperbenni's dotfiles"
 
-if ! grep -q paperbenni-dotfiles ~/.zshrc
-then
-    echo "installing zsh"
-    echo 'source ~/workspace/paperbenni-dotfiles/zsh.sh' >> ~/.zshrc
-fi

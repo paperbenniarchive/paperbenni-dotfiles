@@ -1,5 +1,9 @@
 #!/usr/bin/zsh
 
+# use development version of instantSHELL
+source ~/workspace/instantSHELL/zshrc
+
+
 pullmusic() {
     mkdir ~/Music
     rclone sync -P music:Music/ ~/Music
