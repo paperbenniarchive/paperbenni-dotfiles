@@ -98,4 +98,6 @@ autoeditvid() {
         rm "${2}large.mp4"
 }
 
-
+alias t=task
+alias tw=timew
+alias tc="task status:comlpeted"
