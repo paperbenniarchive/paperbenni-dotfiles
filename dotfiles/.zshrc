@@ -101,3 +101,7 @@ autoeditvid() {
 alias t=task
 alias tw=timew
 alias tc="task status:comlpeted"
+alias ta="task add"
+alias a=yatext
+compdef _task yatext
+
