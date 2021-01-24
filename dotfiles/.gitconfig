@@ -2,3 +2,5 @@
         name = paperbenni
         email = paperbenni@gmail.com
 
+[pull]
+	rebase = false
