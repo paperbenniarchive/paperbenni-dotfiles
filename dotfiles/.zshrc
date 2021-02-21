@@ -87,10 +87,10 @@ autoeditvid() {
         eval "$MKVCOMMAND"
 
         echo "applying audio compression"
-        ffmpeg -i "${2}tmp2.mp4" -filter_complex "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
     else
-        preprocessvideo "$1" "${2}tmp.mp4"
+        preprocessvideo "$1" "${2}tmp2.mp4"
     fi
+    ffmpeg -i "${2}tmp2.mp4" -filter_complex "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
 
     auto-editor "${2}tmp.mp4" --frame_margin 3 --output_file "${2}large.mp4" && \
         ffmpeg -i "${2}large.mp4" -filter_complex "[0:v]setpts=1/1.3*PTS[v];[0:a]atempo=1.3[a]" -map "[v]" -map "[a]" "$2.mp4" && \
@@ -103,5 +103,11 @@ alias tw=timew
 alias tc="task status:comlpeted"
 alias ta="task add"
 alias a=yatext
+
+inkexport() {
+    [ -e ./final ] || mkdir final
+    inkscape --without-gui --file="$1" --export-text-to-path --export-plain-svg="final/$1"
+}
+
 compdef _task yatext
 
