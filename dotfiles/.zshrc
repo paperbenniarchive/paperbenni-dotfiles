@@ -58,6 +58,12 @@ autoeditvid() {
 
     [ -z "$2" ] && return 1
 
+    if [ "$1" = "copysound" ]; then
+        echo "not editing sound"
+        export COPYSOUND="true"
+        shift 1
+    fi
+
     if [ "$1" = "mp4" ]; then
 
         # check if videos are all same resolution, if not mkvmerge cannot be used
@@ -104,7 +110,12 @@ autoeditvid() {
     else
         preprocessvideo "$1" "${2}tmp2.mp4"
     fi
-    ffmpeg -i "${2}tmp2.mp4" -filter_complex "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
+
+    if [ -n "$COPYSOUND" ]; then
+        mv "${2}tmp2.mp4" "${2}tmp.mp4"
+    else
+        ffmpeg -i "${2}tmp2.mp4" -filter_complex "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
+    fi
 
     auto-editor "${2}tmp.mp4" --frame_margin 3 --output_file "${2}large.mp4" &&
         ffmpeg -i "${2}large.mp4" -filter_complex "[0:v]setpts=1/1.3*PTS[v];[0:a]atempo=1.3[a]" -map "[v]" -map "[a]" "$2.mp4" &&
