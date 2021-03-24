@@ -83,8 +83,7 @@ autoeditvid() {
 
         # check if videos are all same resolution, if not mkvmerge cannot be used
         for i in ./*; do
-            if ! grep -Eq '(mp4|webm|avi)$' <<< "$i"
-            then
+            if ! ffprobe "$i" &>/dev/null; then
                 echo "$i is not a video"
                 continue
             fi
@@ -106,16 +105,26 @@ autoeditvid() {
         done
 
         mkdir tmprenders
-        echo "converting video to correct codec"
-        for i in ./*.mp4; do
+        echo "converting videos to correct codec"
+        for i in ./*; do
+            if ! ffprobe "$i" &>/dev/null; then
+                echo "$i is not a video"
+                continue
+            fi
             preprocessvideo "$i" "tmprender.mp4" || return 1
             mv tmprender.mp4 tmprenders/"$i"tmp.mp4
         done
         echo 'concatenating videos'
+        cd tmprenders
 
         if [ -z "$USEMELT" ]; then
             MKVCOMMAND="mkvmerge -o \"${2}tmp2.mp4\""
-            for i in ./*.mp4; do
+            for i in ./*; do
+                if ! ffprobe "$i" &>/dev/null; then
+                    echo "$i is not a video"
+                    continue
+                fi
+                4
                 MKVCOMMAND="$MKVCOMMAND \"$i\" \+"
             done
             MKVCOMMAND="$(sed 's/..$//g' <<<"$MKVCOMMAND")"
@@ -126,6 +135,8 @@ autoeditvid() {
             melt *.mp4 -consumer avformat:"${2}tmp2.mp4" acodec=libmp3lame vcodec=libx264 vb=8000k
         fi
 
+        mv "${2}tmp2.mp4" ../ || exit 1
+        cd ../ || exit 1
         echo "applying audio compression"
     else
         preprocessvideo "$1" "${2}tmp2.mp4"
