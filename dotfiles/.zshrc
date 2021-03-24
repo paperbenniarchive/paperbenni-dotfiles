@@ -83,7 +83,7 @@ autoeditvid() {
 
         # check if videos are all same resolution, if not mkvmerge cannot be used
         for i in ./*; do
-            if ! grep -Eq '(mp4|webm|avi)$'
+            if ! grep -Eq '(mp4|webm|avi)$' <<< "$i"
             then
                 echo "$i is not a video"
                 continue
