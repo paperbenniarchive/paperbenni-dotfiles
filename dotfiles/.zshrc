@@ -58,6 +58,21 @@ autoeditvid() {
 
     [ -z "$2" ] && return 1
 
+    if [ "$1" = youtube ]; then
+        if ! [ -e "$2" ]; then
+            echo 'dafuq, that doesnt exist'
+            return 1
+        fi
+        counter=1
+        while read video; do
+            echo "downloading video $counter"
+            youtube-dl --output "${counter}video" "$video"
+            counter="$((counter + 1))"
+        done <"$2"
+        autoeditvid "mp4" "${3:-youtube}"
+        return
+    fi
+
     if [ "$1" = "copysound" ]; then
         echo "not editing sound"
         export COPYSOUND="true"
@@ -67,7 +82,12 @@ autoeditvid() {
     if [ "$1" = "mp4" ]; then
 
         # check if videos are all same resolution, if not mkvmerge cannot be used
-        for i in ./*.mp4; do
+        for i in ./*; do
+            if ! grep -Eq '(mp4|webm|avi)$'
+            then
+                echo "$i is not a video"
+                continue
+            fi
             CURRES="$(ffprobe "$i" 2>&1 | grep -i video | grep -o ',.*' | grep -o '[0-9][0-9]*x[0-9]*[0-9]')"
             if [ -z "$CURRES" ]; then
                 echo "$i is corrupted"
