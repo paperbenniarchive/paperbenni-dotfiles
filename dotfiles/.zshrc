@@ -61,13 +61,13 @@ mergeall() {
 autoeditvid() {
 
     if command -v pacman &>/dev/null; then
-        instantinstall mkvtoolnix-cli || exit 1
-        instantinstall ffmpeg || exit 1
+        instantinstall mkvtoolnix-cli || return 1
+        instantinstall ffmpeg || return 1
     fi
 
     if ! command -v auto-editor &>/dev/null; then
         echo "installing auto-editor"
-        command -v pip || exit 1
+        command -v pip || return 1
         sudo pip3 install auto-editor
     fi
 
@@ -143,8 +143,8 @@ autoeditvid() {
             melt *.mp4 -consumer avformat:"${2}tmp2.mp4" acodec=libmp3lame vcodec=libx264 vb=8000k
         fi
 
-        mv "${2}tmp2.mp4" ../ || exit 1
-        cd ../ || exit 1
+        mv "${2}tmp2.mp4" ../ || return 1
+        cd ../ || return 1
         echo "applying audio compression"
     else
         preprocessvideo "$1" "${2}tmp2.mp4"
@@ -163,30 +163,30 @@ autoeditvid() {
 
     if ! [ "$FILEDURATION" -eq "$FILEDURATION" ]; then
         echo 'tmpfile is corrupt'
-        exit 1
+        return 1
     fi
 
     if [ "$FILEDURATION" -gt 3600 ]; then
         echo 'file is longer than an hour, splitting'
         mkdir splittmp
-        mv "${2}large.mp4" splittmp/
-        cd splittmp || exit 1
-        mkvmerge --split duration:00:30:00.000 -o tmpsplit "${2}large.mp4"
-        mv "${2}large.mp4" ../"${2}large_old.mp4" 
+        mv "${2}tmp.mp4" splittmp/ || return 1
+        cd splittmp || return 1
+        mkvmerge --split duration:00:30:00.000 -o tmpsplit "${2}tmp.mp4"
+        mv "${2}tmp.mp4" ../"${2}tmp_old.mp4" 
 
         for i in ./*; do
             echo 'renaming files'
             mv "$i" "$i.mp4"
-            auto-editor "${i}.mp4" --frame_margin 3 --output_file "${i}edited.mp4" || exit 1
+            auto-editor "${i}.mp4" --frame_margin 3 --output_file "${i}edited.mp4" || return 1
             rm "$i"
         done
 
         mergeall "${2}large.mp4"
         mv "${2}large.mp4" ../
-        cd ../ || exit 1
+        cd ../ || return 1
 
     else
-        auto-editor "${2}tmp.mp4" --frame_margin 3 --output_file "${2}large.mp4" || exit 1
+        auto-editor "${2}tmp.mp4" --frame_margin 3 --output_file "${2}large.mp4" || return 1
     fi
 
     ffmpeg -i "${2}large.mp4" -filter_complex "[0:v]setpts=1/1.3*PTS[v];[0:a]atempo=1.3[a]" -map "[v]" -map "[a]" "$2.mp4" &&
