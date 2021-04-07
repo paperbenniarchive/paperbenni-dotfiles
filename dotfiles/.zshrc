@@ -56,7 +56,10 @@ autoeditvid() {
         sudo pip3 install auto-editor
     fi
 
-    [ -z "$2" ] && return 1
+    [ -z "$2" ] && {
+        echo "usage: autoeditvid source target"
+        return 1
+    }
 
     if [ "$1" = youtube ]; then
         if ! [ -e "$2" ]; then
@@ -132,6 +135,7 @@ autoeditvid() {
             eval "$MKVCOMMAND"
         else
             echo "using melt"
+            ls ./*.mp4
             melt *.mp4 -consumer avformat:"${2}tmp2.mp4" acodec=libmp3lame vcodec=libx264 vb=8000k
         fi
 
@@ -145,7 +149,7 @@ autoeditvid() {
     if [ -n "$COPYSOUND" ]; then
         mv "${2}tmp2.mp4" "${2}tmp.mp4"
     else
-        ffmpeg -i "${2}tmp2.mp4" -filter_complex "highpass=f=200[frank]; [frank]lowpass=f=4000[gunter]; [gunter]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
+        ffmpeg -i "${2}tmp2.mp4" -filter_complex "ladspa=f=librnnoise_ladspa:p=noise_suppressor_mono[frank];[frank]compand=attacks=0:points=-80/-900|-45/-15|-27/-9|-5/-5|20/20:gain=3" "${2}tmp.mp4"
     fi
 
     auto-editor "${2}tmp.mp4" --frame_margin 3 --output_file "${2}large.mp4" &&
