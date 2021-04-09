@@ -135,7 +135,7 @@ autoeditvid() {
         cd tmprenders
 
         if [ -z "$USEMELT" ]; then
-            mergeall "${2}.mp4"
+            mergeall "${2}tmp2.mp4"
         else
             echo "using melt"
             ls ./*.mp4
