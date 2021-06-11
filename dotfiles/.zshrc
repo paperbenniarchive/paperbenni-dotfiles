@@ -44,7 +44,8 @@ preprocessvideo() {
 }
 
 mergeall() {
-    MKVCOMMAND="mkvmerge -o \"$1\""
+    export MKVNAME="$1"
+    MKVCOMMAND="mkvmerge -o \"$MKVNAME\""
     for i in ./*; do
         if ! ffprobe "$i" &>/dev/null; then
             echo "$i is not a video"
@@ -135,13 +136,15 @@ autoeditvid() {
         cd tmprenders
 
         if [ -z "$USEMELT" ]; then
-            mergeall "${2}tmp2.mp4"
+            echo "using mkvmerge"
+            mergeall "${2}tmp2.mp4" || return 1
         else
             echo "using melt"
             ls ./*.mp4
             melt *.mp4 -consumer avformat:"${2}tmp2.mp4" acodec=libmp3lame vcodec=libx264 vb=8000k
         fi
 
+        echo 'moving up'
         mv "${2}tmp2.mp4" ../ || return 1
         cd ../ || return 1
         echo "applying audio compression"
@@ -176,20 +179,22 @@ autoeditvid() {
         for i in ./*; do
             echo 'renaming files'
             mv "$i" "$i.mp4"
+            echo 'running auto editor'
             auto-editor "${i}.mp4" --no_open --frame_margin 3 --output_file "${i}edited.mp4" || return 1
             rm "$i.mp4"
             ls ./"$i".* &>/dev/null && rm ./"$i".*
         done
 
-        mergeall "${2}large.mp4"
+        mergeall "${2}large.mp4" || return 1
         mv "${2}large.mp4" ../ || return 1
         cd ../ || return 1
 
     else
+        echo 'running auto editor'
         auto-editor "${2}tmp.mp4" --no_open --frame_margin 3 --output_file "${2}large.mp4" || return 1
     fi
 
-    ffmpeg -i "${2}large.mp4" -filter_complex "[0:v]setpts=1/1.3*PTS[v];[0:a]atempo=1.3[a]" -map "[v]" -map "[a]" "$2.mp4" &&
+    ffmpeg -i "${2}large.mp4" "$2.mp4" &&
         rm "$VINPUT" &&
         rm "${2}large.mp4"
 }
@@ -203,6 +208,13 @@ alias a=yatext
 inkexport() {
     [ -e ./final ] || mkdir final
     inkscape --without-gui --file="$1" --export-text-to-path --export-plain-svg="final/$1"
+}
+
+fv() {
+    export INSTANTFILECOMMAND="fd -H"
+    export INSTANTFILECLI="true"
+    FILECHOICE="$(instantfilepick)"
+    [ -n "$FILECHOICE" ] && [ -e "$FILECHOICE" ] && nvim "$FILECHOICE"
 }
 
 compdef _task yatext
