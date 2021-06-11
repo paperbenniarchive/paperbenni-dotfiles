@@ -1,0 +1,42 @@
+# Base16 OneDark
+# Author: Lalit Magant (http://github.com/tilal6991)
+
+set default-bg                  "#282c34"
+set default-fg                  "#353b45"
+
+set statusbar-fg                "#b6bdca"
+set statusbar-bg                "#3e4451"
+
+set inputbar-bg                 "#282c34"
+set inputbar-fg                 "#c8ccd4"
+
+set notification-bg             "#282c34"
+set notification-fg             "#c8ccd4"
+
+set notification-error-bg       "#282c34"
+set notification-error-fg       "#e06c75"
+
+set notification-warning-bg     "#282c34"
+set notification-warning-fg     "#e06c75"
+
+set highlight-color             "#e5c07b"
+set highlight-active-color      "#61afef"
+
+# Define the color in index mode
+set index-bg                   "#282c34" # base02
+set index-fg                   "#c8ccd4" # base1
+set index-active-bg             "#565c64" # base01
+set index-active-fg             "#c8ccd4" # base2
+
+
+set completion-bg               "#353b45"
+set completion-fg               "#61afef"
+
+set completion-highlight-fg     "#c8ccd4"
+set completion-highlight-bg     "#61afef"
+
+set recolor-lightcolor          "#282c34"
+set recolor-darkcolor           "#b6bdca"
+
+set recolor                     "true"
+set recolor-keephue             "true"
