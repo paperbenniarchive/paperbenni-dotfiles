@@ -201,9 +201,10 @@ autoeditvid() {
 
 alias t=task
 alias tw=timew
-alias tc="task status:comlpeted"
+alias tc="task status:completed"
 alias ta="task add"
 alias a=yatext
+alias lg=lazygit
 
 inkexport() {
     [ -e ./final ] || mkdir final
