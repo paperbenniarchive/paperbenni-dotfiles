@@ -227,18 +227,19 @@ ws() {
         echo 'wiki not found' && return 1
     }
     cd ~/wiki || return 1
+
+    if ! ssh-add -l &> /dev/null
+    then
+        eval "$(ssh-agent)"
+        ssh-add
+    fi
+
+    git pull
+
     if git diff-index --quiet HEAD --; then
         echo 'all up to date'
     else
         echo 'updating'
-
-        if ! ssh-add -l &> /dev/null
-        then
-            eval "$(ssh-agent)"
-            ssh-add
-        fi
-
-        git pull
         git add -A
         git commit -m 'updates'
         git push origin master
