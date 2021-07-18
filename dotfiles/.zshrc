@@ -204,6 +204,7 @@ alias td="yatext today"
 alias tw=timew
 alias tc="task status:completed"
 alias ta="task add"
+alias td="yatext today"
 alias a=yatext
 alias lg=lazygit
 
@@ -220,3 +221,29 @@ fv() {
 }
 
 compdef _task yatext
+
+# wiki sync
+ws() {
+    [ -e ~/wiki/ ] || {
+        echo 'wiki not found' && return 1
+    }
+    cd ~/wiki || return 1
+
+    if ! ssh-add -l &> /dev/null
+    then
+        eval "$(ssh-agent)"
+        ssh-add
+    fi
+
+    git pull
+
+    if git diff-index --quiet HEAD --; then
+        echo 'all up to date'
+    else
+        echo 'updating'
+        git add -A
+        git commit -m 'updates'
+        git push origin master
+    fi
+
+}
