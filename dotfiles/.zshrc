@@ -200,6 +200,7 @@ autoeditvid() {
 }
 
 alias t=task
+alias td="yatext today"
 alias tw=timew
 alias tc="task status:completed"
 alias ta="task add"
